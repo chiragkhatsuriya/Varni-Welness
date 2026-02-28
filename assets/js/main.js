@@ -1,313 +1,400 @@
-// DOM Elements
-const hamburger = document.querySelector('.hamburger');
-const navMenu = document.querySelector('.nav-menu');
-const header = document.querySelector('.header');
-const sections = document.querySelectorAll('section');
-const navItems = document.querySelectorAll('.nav-menu a');
-
-// Mobile Menu Toggle
-hamburger?.addEventListener('click', () => {
-    const isExpanded = navMenu.classList.contains('active');
-    
-    navMenu.classList.toggle('active');
-    hamburger.classList.toggle('active');
-    document.body.classList.toggle('no-scroll');
-    
-    // Update ARIA attributes
-    hamburger.setAttribute('aria-expanded', !isExpanded);
-    
-    // Update current page indicator
-    const homeLink = document.querySelector('a[href="#home"]');
-    if (homeLink) {
-        if (isExpanded) {
-            homeLink.setAttribute('aria-current', 'page');
+// Check if jQuery is loaded, otherwise wait for it
+if (typeof jQuery === 'undefined') {
+    console.log('jQuery not loaded yet, waiting...');
+    setTimeout(function() {
+        if (typeof jQuery !== 'undefined') {
+            console.log('jQuery loaded after delay');
+            initApp();
         } else {
-            homeLink.removeAttribute('aria-current');
+            console.error('jQuery failed to load!');
         }
-    }
-});
+    }, 1000);
+} else {
+    initApp();
+}
 
-// Close mobile menu when clicking on a nav link
-navItems.forEach(item => {
-    item.addEventListener('click', () => {
-        navMenu.classList.remove('active');
-        hamburger.classList.remove('active');
-        document.body.classList.remove('no-scroll');
+function initApp() {
+    // jQuery Document Ready
+    $(document).ready(function() {
         
-        // Update ARIA attributes
-        hamburger.setAttribute('aria-expanded', 'false');
-    });
-});
-
-// Header scroll effect
-window.addEventListener('scroll', () => {
-    if (window.scrollY > 100) {
-        header.classList.add('scrolled');
-    } else {
-        header.classList.remove('scrolled');
-    }
-
-    // Active nav link highlight
-    let current = '';
-    sections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.clientHeight;
+        // Test if jQuery is loaded
+        console.log('jQuery version:', $.fn.jquery);
+        console.log('Document ready - jQuery loaded successfully');
         
-        if (pageYOffset >= (sectionTop - sectionHeight / 3)) {
-            current = section.getAttribute('id');
+        // Slider Data Template
+        const sliderData = [
+            {
+                id: 1,
+                image: 'assets/images/bg-1.png',
+                imageAlt: 'Pure Natural Honey',
+                title: 'Pure Honey from Nature\'s Bounty',
+                titleTag: 'h1',
+                description: 'Experience the golden goodness of Varni Wellness honey - 100% natural, pure, and packed with nature\'s finest nutrients.',
+                buttons: [
+                    {
+                        text: 'Shop Now',
+                        class: 'btn btn-primary',
+                        href: '#shop',
+                        ariaLabel: 'Shop our honey products'
+                    },
+                    {
+                        text: 'Learn More',
+                        class: 'btn btn-secondary',
+                        href: '#about',
+                        ariaLabel: 'Learn more about Varni Wellness'
+                    }
+                ]
+            },
+            {
+                id: 2,
+                image: 'assets/images/bg-1.png',
+                imageAlt: 'Premium Multi Flower Honey',
+                title: 'Premium Multi Flower Honey',
+                titleTag: 'h2',
+                description: 'Discover our exclusive collection of multi-floral honey, harvested from the finest blossoms for unparalleled taste and health benefits.',
+                buttons: [
+                    {
+                        text: 'Explore Combos',
+                        class: 'btn btn-primary',
+                        href: '#combos',
+                        ariaLabel: 'View honey combos'
+                    },
+                    {
+                        text: 'Shop All',
+                        class: 'btn btn-secondary',
+                        href: '#shop',
+                        ariaLabel: 'Shop all products'
+                    }
+                ]
+            },
+            {
+                id: 3,
+                image: 'assets/images/bg-1.png',
+                imageAlt: 'Ethical Sourcing',
+                title: 'Ethically Sourced Wellness',
+                titleTag: 'h2',
+                description: 'Support sustainable beekeeping practices and tribal communities while enjoying the purest honey nature has to offer.',
+                buttons: [
+                    {
+                        text: 'Our Story',
+                        class: 'btn btn-primary',
+                        href: '#about',
+                        ariaLabel: 'Learn about our story'
+                    },
+                    {
+                        text: 'Contact Us',
+                        class: 'btn btn-secondary',
+                        href: '#contact',
+                        ariaLabel: 'Get in touch'
+                    }
+                ]
+            }
+        ];
+        
+        // Slider Template Generator
+        function generateSlideHTML(slide) {
+            const titleId = slide.id === 1 ? 'hero-heading' : `slide-${slide.id}-heading`;
+            const titleTag = slide.titleTag || 'h2';
+            
+            return `
+                <div class="slide" role="group" aria-label="Slide ${slide.id} of ${sliderData.length}">
+                    <img src="${slide.image}" alt="${slide.imageAlt}" class="slide-image">
+                    <div class="slide-content">
+                        <${titleTag} id="${titleId}">${slide.title}</${titleTag}>
+                        <p>${slide.description}</p>
+                        <div class="hero-buttons">
+                            ${slide.buttons.map(btn => 
+                                `<a href="${btn.href}" class="${btn.class}" aria-label="${btn.ariaLabel}">${btn.text}</a>`
+                            ).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
         }
-    });
-
-    navItems.forEach(item => {
-        item.classList.remove('active');
-        if (item.getAttribute('href').slice(1) === current) {
-            item.classList.add('active');
+        
+        // Generate Indicators HTML
+        function generateIndicatorsHTML() {
+            return sliderData.map((slide, index) => 
+                `<button class="indicator ${index === 0 ? 'active' : ''}" role="tab" aria-selected="${index === 0 ? 'true' : 'false'}" aria-label="Go to slide ${index + 1}" data-slide="${index}"></button>`
+            ).join('');
         }
-    });
-});
-
-// Smooth scrolling for anchor links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            window.scrollTo({
-                top: target.offsetTop - 80,
-                behavior: 'smooth'
+        
+        // Generate Status HTML
+        function generateStatusHTML() {
+            return `
+                <span class="sr-only">Current slide: <span id="current-slide">1</span> of <span id="total-slides">${sliderData.length}</span></span>
+            `;
+        }
+        
+        // Initialize Slider with Dynamic Content
+        function initDynamicSlider() {
+            console.log('=== INITIALIZING DYNAMIC SLIDER ===');
+            
+            const $sliderContainer = $('.slider-container');
+            const $slider = $('#heroSlider');
+            
+            console.log('Slider container found:', $sliderContainer.length);
+            console.log('Slider element found:', $slider.length);
+            
+            if ($slider.length === 0) {
+                console.error('Slider container not found!');
+                return;
+            }
+            
+            // Clear existing content
+            $slider.empty();
+            console.log('Cleared existing slider content');
+            
+            // Generate slides
+            const slidesHTML = sliderData.map(slide => generateSlideHTML(slide)).join('');
+            console.log('Generated slides HTML:', slidesHTML.substring(0, 200) + '...');
+            $slider.html(slidesHTML);
+            
+            // Generate indicators
+            const $indicatorsContainer = $('.slider-indicators');
+            console.log('Indicators container found:', $indicatorsContainer.length);
+            if ($indicatorsContainer.length > 0) {
+                const indicatorsHTML = generateIndicatorsHTML();
+                console.log('Generated indicators HTML:', indicatorsHTML);
+                $indicatorsContainer.html(indicatorsHTML);
+            }
+            
+            // Generate status
+            const $statusContainer = $('.slider-status');
+            console.log('Status container found:', $statusContainer.length);
+            if ($statusContainer.length > 0) {
+                const statusHTML = generateStatusHTML();
+                console.log('Generated status HTML:', statusHTML);
+                $statusContainer.html(statusHTML);
+            }
+            
+            console.log('Dynamic slider generated with', sliderData.length, 'slides');
+            
+            // Set first slide as active
+            const $generatedSlides = $('.slide');
+            console.log('Generated slides found:', $generatedSlides.length);
+            if ($generatedSlides.length > 0) {
+                $generatedSlides.eq(0).addClass('active');
+                console.log('Set first slide as active');
+            }
+            
+            // Re-initialize slider functionality with longer delay
+            setTimeout(() => {
+                console.log('=== INITIALIZING SLIDER FUNCTIONALITY ===');
+                initSliderFunctionality();
+            }, 300);
+        }
+        
+        // Slider Functionality (separated from generation)
+        function initSliderFunctionality() {
+            console.log('=== SETTING UP SLIDER FUNCTIONALITY ===');
+            
+            // DOM Elements (re-select after dynamic generation)
+            const $slides = $('.slide');
+            const $prevBtn = $('#prevSlide');
+            const $nextBtn = $('#nextBtn');
+            const $indicators = $('.indicator');
+            const $currentSlideSpan = $('#current-slide');
+            const $totalSlidesSpan = $('#total-slides');
+            
+            console.log('=== ELEMENT DETECTION ===');
+            console.log('Slides found:', $slides.length);
+            console.log('Prev button found:', $prevBtn.length);
+            console.log('Next button found:', $nextBtn.length);
+            console.log('Indicators found:', $indicators.length);
+            console.log('Current slide span found:', $currentSlideSpan.length);
+            console.log('Total slides span found:', $totalSlidesSpan.length);
+            
+            if ($slides.length === 0) {
+                console.error('No slides found after generation!');
+                return;
+            }
+            
+            // Slider Configuration
+            let currentSlide = 0;
+            let autoplayInterval;
+            const autoplayDelay = 5000; // 5 seconds
+            
+            // Update initial slide
+            console.log('=== SETTING INITIAL SLIDE ===');
+            updateSlide(0);
+            
+            // Start autoplay
+            console.log('=== STARTING AUTOPLAY ===');
+            startAutoplay();
+            
+            // Previous button click
+            console.log('=== SETTING PREVIOUS BUTTON ===');
+            if ($prevBtn.length > 0) {
+                $prevBtn.off('click.slider').on('click.slider', function(e) {
+                    e.preventDefault();
+                    console.log('🔙 Previous button clicked');
+                    stopAutoplay();
+                    previousSlide();
+                    startAutoplay();
+                });
+                console.log('✅ Previous button event attached');
+            } else {
+                console.warn('⚠️ Previous button not found!');
+            }
+            
+            // Next button click
+            console.log('=== SETTING NEXT BUTTON ===');
+            if ($nextBtn.length > 0) {
+                $nextBtn.off('click.slider').on('click.slider', function(e) {
+                    e.preventDefault();
+                    console.log('🔜 Next button clicked');
+                    stopAutoplay();
+                    nextSlide();
+                    startAutoplay();
+                });
+                console.log('✅ Next button event attached');
+            } else {
+                console.warn('⚠️ Next button not found!');
+            }
+            
+            // Indicator clicks
+            console.log('=== SETTING INDICATORS ===');
+            if ($indicators.length > 0) {
+                $indicators.each(function(index) {
+                    const $indicator = $(this);
+                    console.log(`Setting up indicator ${index} with data-slide:`, $indicator.data('slide'));
+                });
+                
+                $indicators.off('click.slider').on('click.slider', function(e) {
+                    e.preventDefault();
+                    const index = parseInt($(this).data('slide'));
+                    console.log('🎯 Indicator clicked for slide:', index);
+                    stopAutoplay();
+                    goToSlide(index);
+                    startAutoplay();
+                });
+                console.log('✅ Indicator events attached');
+            } else {
+                console.warn('⚠️ No indicators found!');
+            }
+            
+            // Keyboard navigation
+            console.log('=== SETTING KEYBOARD NAVIGATION ===');
+            $(document).off('keydown.slider').on('keydown.slider', function(e) {
+                if (e.key === 'ArrowLeft') {
+                    console.log('⬅️ Left arrow pressed');
+                    stopAutoplay();
+                    previousSlide();
+                    startAutoplay();
+                } else if (e.key === 'ArrowRight') {
+                    console.log('➡️ Right arrow pressed');
+                    stopAutoplay();
+                    nextSlide();
+                    startAutoplay();
+                }
             });
-        }
-    });
-});
-
-// Category tabs functionality
-const categoryTabs = document.querySelectorAll('.category-tab');
-
-categoryTabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-        // Remove active class from all tabs
-        categoryTabs.forEach(t => t.classList.remove('active'));
-        // Add active class to clicked tab
-        tab.classList.add('active');
-        
-        // Navigate to the appropriate section
-        const category = tab.getAttribute('data-category');
-        if (category === 'multi') {
-            window.location.hash = '#multi-honey';
-        } else if (category === 'ajwain') {
-            window.location.hash = '#ajwain-honey';
-        } else if (category === 'all') {
-            window.location.hash = '#shop';
-        }
-    });
-});
-
-// Add to cart functionality for all buttons
-const allAddToCartButtons = document.querySelectorAll('.btn');
-allAddToCartButtons.forEach(button => {
-    if (button.textContent.includes('Buy Now') || button.textContent.includes('Shop Now')) {
-        button.addEventListener('click', (e) => {
-            e.preventDefault();
+            console.log('✅ Keyboard navigation attached');
             
-            // Find the product name
-            const productCard = button.closest('.bestseller-item, .combo-card, .showcase-item, .category-card');
-            let productName = 'Product';
+            // Slider Functions
+            function updateSlide(index) {
+                console.log(`🔄 Updating slide to: ${index} (total: ${$slides.length})`);
+                
+                // Remove active class from all slides and indicators
+                $slides.removeClass('active');
+                $indicators.removeClass('active').attr('aria-selected', 'false');
+                
+                // Add active class to current slide and indicator
+                $slides.eq(index).addClass('active');
+                
+                if ($indicators.length > 0) {
+                    $indicators.eq(index).addClass('active').attr('aria-selected', 'true');
+                }
+                
+                // Update current slide display
+                if ($currentSlideSpan.length) {
+                    $currentSlideSpan.text(index + 1);
+                }
+                
+                // Update slide labels
+                $slides.each(function(i) {
+                    $(this).attr('aria-label', `Slide ${i + 1} of ${$slides.length}`);
+                });
+                
+                console.log(`✅ Slide ${index} is now active`);
+            }
             
-            if (productCard) {
-                const titleElement = productCard.querySelector('h3');
-                if (titleElement) {
-                    productName = titleElement.textContent;
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % $slides.length;
+                console.log(`➡️ Moving to next slide: ${currentSlide}`);
+                updateSlide(currentSlide);
+            }
+            
+            function previousSlide() {
+                currentSlide = (currentSlide - 1 + $slides.length) % $slides.length;
+                console.log(`⬅️ Moving to previous slide: ${currentSlide}`);
+                updateSlide(currentSlide);
+            }
+            
+            function goToSlide(index) {
+                console.log(`🎯 Going to slide: ${index}`);
+                currentSlide = index;
+                updateSlide(currentSlide);
+            }
+            
+            function startAutoplay() {
+                if (autoplayInterval) clearInterval(autoplayInterval);
+                autoplayInterval = setInterval(function() {
+                    console.log('🔄 Autoplay: advancing to next slide');
+                    nextSlide();
+                }, autoplayDelay);
+                console.log('▶️ Autoplay started');
+            }
+            
+            function stopAutoplay() {
+                if (autoplayInterval) {
+                    clearInterval(autoplayInterval);
+                    autoplayInterval = null;
+                    console.log('⏸️ Autoplay stopped');
                 }
             }
             
-            // Show success message
-            showNotification(`${productName} added to cart!`, 'success');
+            // Make functions globally accessible for debugging
+            window.sliderAPI = {
+                nextSlide,
+                previousSlide,
+                goToSlide,
+                startAutoplay,
+                stopAutoplay,
+                getCurrentSlide: () => currentSlide,
+                updateSlide,
+                $slides,
+                $indicators
+            };
             
-            // Add cart animation
-            button.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                button.style.transform = 'scale(1)';
-            }, 200);
-        });
-    }
-});
-
-// Enhanced smooth scrolling for all anchor links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const targetId = this.getAttribute('href').substring(1);
-        const targetElement = document.getElementById(targetId);
+            console.log('🎉 Slider functionality initialized successfully!');
+            console.log('🔧 Available API: window.sliderAPI');
+        }
         
-        if (targetElement) {
-            const headerHeight = document.querySelector('.header').offsetHeight;
-            const targetPosition = targetElement.offsetTop - headerHeight - 20;
-            
-            window.scrollTo({
-                top: targetPosition,
-                behavior: 'smooth'
-            });
-            
-            // Update active navigation state
-            updateActiveNavigation(targetId);
-        }
-    });
-});
-
-// Update active navigation based on current section
-function updateActiveNavigation(currentSection) {
-    navItems.forEach(item => {
-        item.classList.remove('active');
-        item.removeAttribute('aria-current');
+        // Initialize dynamic slider
+        initDynamicSlider();
         
-        const href = item.getAttribute('href');
-        if (href === `#${currentSection}`) {
-            item.classList.add('active');
-            item.setAttribute('aria-current', 'page');
-        }
-    });
-}
-
-// Scroll-based navigation update with better performance
-let scrollTimeout;
-window.addEventListener('scroll', () => {
-    clearTimeout(scrollTimeout);
-    
-    scrollTimeout = setTimeout(() => {
-        if (window.scrollY > 100) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
-        }
-
-        // Update active nav link based on scroll position
-        let current = '';
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop - 100;
-            const sectionHeight = section.clientHeight;
+        // Add manual test function
+        window.testSlider = function() {
+            console.log('=== MANUAL SLIDER TEST ===');
+            console.log('Slides:', $('.slide').length);
+            console.log('Prev button:', $('#prevSlide').length);
+            console.log('Next button:', $('#nextBtn').length);
+            console.log('Indicators:', $('.indicator').length);
+            console.log('Active slide:', $('.slide.active').index());
             
-            if (window.scrollY >= sectionTop && window.scrollY < sectionTop + sectionHeight) {
-                current = section.getAttribute('id');
+            // Test manual slide change
+            if (window.sliderAPI) {
+                console.log('Slider API available');
+                console.log('Current slide:', window.sliderAPI.getCurrentSlide());
+                window.sliderAPI.nextSlide();
+                console.log('After next slide:', window.sliderAPI.getCurrentSlide());
+            } else {
+                console.error('Slider API not available!');
             }
-        });
-
-        if (current) {
-            updateActiveNavigation(current);
-        }
-    }, 16); // ~60fps
-});
-
-// Add to cart functionality for product cards
-const addToCartButtons = document.querySelectorAll('.product-card .btn');
-addToCartButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        const productCard = button.closest('.product-card');
-        const productName = productCard.querySelector('h3').textContent;
-        const productPrice = productCard.querySelector('.product-price').textContent;
+        };
         
-        console.log(`Added to cart: ${productName} - ${productPrice}`);
-        showNotification(`${productName} added to cart!`, 'success');
+        console.log('Varni Wellness website loaded successfully with jQuery!');
+        console.log('🔧 Run testSlider() in console to test manually');
     });
-});
-
-// Email validation helper function
-function validateEmail(email) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(String(email).toLowerCase());
 }
-
-// Notification function
-function showNotification(message, type = 'success') {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.textContent = message;
-    
-    // Add styles for notification
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${type === 'success' ? 'var(--primary)' : '#e74c3c'};
-        color: white;
-        padding: 15px 20px;
-        border-radius: 10px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        z-index: 10000;
-        transform: translateX(100%);
-        transition: transform 0.3s ease;
-        font-weight: 500;
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Show notification
-    setTimeout(() => {
-        notification.style.transform = 'translateX(0)';
-    }, 100);
-    
-    // Hide and remove notification after delay
-    setTimeout(() => {
-        notification.style.transform = 'translateX(100%)';
-        setTimeout(() => {
-            notification.remove();
-        }, 300);
-    }, 3000);
-}
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Varni Wellness website loaded successfully!');
-    
-    // Set current year in footer
-    const currentYearElement = document.getElementById('current-year');
-    if (currentYearElement) {
-        currentYearElement.textContent = new Date().getFullYear();
-    }
-    
-    // Add entrance animations
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-    
-    const observer = new IntersectionObserver(function(entries) {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, observerOptions);
-    
-    // Observe all sections for animation
-    sections.forEach(section => {
-        section.style.opacity = '0';
-        section.style.transform = 'translateY(30px)';
-        section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        observer.observe(section);
-    });
-    
-    // Keyboard navigation support
-    document.addEventListener('keydown', (e) => {
-        // Escape key closes mobile menu
-        if (e.key === 'Escape' && navMenu.classList.contains('active')) {
-            navMenu.classList.remove('active');
-            hamburger.classList.remove('active');
-            document.body.classList.remove('no-scroll');
-            hamburger.setAttribute('aria-expanded', 'false');
-            hamburger.focus();
-        }
-    });
-    
-    // Close mobile menu when clicking outside
-    document.addEventListener('click', (e) => {
-        if (navMenu.classList.contains('active') && 
-            !navMenu.contains(e.target) && 
-            !hamburger.contains(e.target)) {
-            navMenu.classList.remove('active');
-            hamburger.classList.remove('active');
-            document.body.classList.remove('no-scroll');
-            hamburger.setAttribute('aria-expanded', 'false');
-        }
-    });
-});
