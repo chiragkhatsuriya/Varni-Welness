@@ -43,9 +43,26 @@ nav.scrolled {
 }
 
 .btn-primary:hover {
-    background-color: #92400e;
+    background-color: var(--primary-dark);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(180, 83, 9, 0.3);
+}
+
+.btn-secondary {
+    background-color: var(--white) !important;
+    border: 2px solid var(--primary) !important;
+    color: var(--primary) !important;
+}
+
+.btn-secondary:hover {
+    background-color: var(--primary-dark) !important;
+    color: var(--white) !important;
+    border-color: var(--primary) !important;
+}
+
+.btn-primary:focus, .btn-secondary:focus {
+    outline: 2px solid var(--primary) !important;
+    outline-offset: 2px !important;
 }
 
 /* Product Cards */
