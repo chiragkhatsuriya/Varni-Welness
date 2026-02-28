@@ -21,169 +21,158 @@ function initApp() {
         console.log('jQuery version:', $.fn.jquery);
         console.log('Document ready - jQuery loaded successfully');
         
-        // Slider Data Template
-        const sliderData = [
-            {
-                id: 1,
-                image: 'assets/images/bg-1.png',
-                imageAlt: 'Pure Natural Honey',
-                title: 'Pure Honey from Nature\'s Bounty',
-                titleTag: 'h1',
-                description: 'Experience the golden goodness of Varni Wellness honey - 100% natural, pure, and packed with nature\'s finest nutrients.',
-                buttons: [
-                    {
-                        text: 'Shop Now',
-                        class: 'btn btn-primary',
-                        href: '#shop',
-                        ariaLabel: 'Shop our honey products'
-                    },
-                    {
-                        text: 'Learn More',
-                        class: 'btn btn-secondary',
-                        href: '#about',
-                        ariaLabel: 'Learn more about Varni Wellness'
-                    }
-                ]
-            },
-            {
-                id: 2,
-                image: 'assets/images/bg-1.png',
-                imageAlt: 'Premium Multi Flower Honey',
-                title: 'Premium Multi Flower Honey',
-                titleTag: 'h2',
-                description: 'Discover our exclusive collection of multi-floral honey, harvested from the finest blossoms for unparalleled taste and health benefits.',
-                buttons: [
-                    {
-                        text: 'Explore Combos',
-                        class: 'btn btn-primary',
-                        href: '#combos',
-                        ariaLabel: 'View honey combos'
-                    },
-                    {
-                        text: 'Shop All',
-                        class: 'btn btn-secondary',
-                        href: '#shop',
-                        ariaLabel: 'Shop all products'
-                    }
-                ]
-            },
-            {
-                id: 3,
-                image: 'assets/images/bg-1.png',
-                imageAlt: 'Ethical Sourcing',
-                title: 'Ethically Sourced Wellness',
-                titleTag: 'h2',
-                description: 'Support sustainable beekeeping practices and tribal communities while enjoying the purest honey nature has to offer.',
-                buttons: [
-                    {
-                        text: 'Our Story',
-                        class: 'btn btn-primary',
-                        href: '#about',
-                        ariaLabel: 'Learn about our story'
-                    },
-                    {
-                        text: 'Contact Us',
-                        class: 'btn btn-secondary',
-                        href: '#contact',
-                        ariaLabel: 'Get in touch'
-                    }
-                ]
-            }
-        ];
+        // Load slider data from external JSON file
+        let sliderData = [];
         
-        // Slider Template Generator
-        function generateSlideHTML(slide) {
-            const titleId = slide.id === 1 ? 'hero-heading' : `slide-${slide.id}-heading`;
-            const titleTag = slide.titleTag || 'h2';
+        function loadSliderData() {
+            console.log('Loading slider data from JSON file...');
             
-            return `
-                <div class="slide" role="group" aria-label="Slide ${slide.id} of ${sliderData.length}">
-                    <img src="${slide.image}" alt="${slide.imageAlt}" class="slide-image">
-                    <div class="slide-content">
-                        <${titleTag} id="${titleId}">${slide.title}</${titleTag}>
-                        <p>${slide.description}</p>
-                        <div class="hero-buttons">
-                            ${slide.buttons.map(btn => 
-                                `<a href="${btn.href}" class="${btn.class}" aria-label="${btn.ariaLabel}">${btn.text}</a>`
-                            ).join('')}
+            $.ajax({
+                url: 'Data/sliderData.json',
+                method: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    console.log('✅ Slider data loaded successfully:', data.length, 'slides');
+                    sliderData = data;
+                    console.log(sliderData);
+                    initializeSliderWithData();
+                },
+                error: function(xhr, status, error) {
+                    console.error('❌ Failed to load slider data:', error);
+                    console.log('Using fallback slider data...');
+                    // Fallback data if JSON fails to load
+                    sliderData = [
+                        {
+                            id: 1,
+                            image: 'assets/images/bg-1.png',
+                            imageAlt: 'Pure Natural Honey',
+                            title: 'Pure Honey from Nature\'s Bounty',
+                            titleTag: 'h1',
+                            description: 'Experience the golden goodness of Varni Wellness honey - 100% natural, pure, and packed with nature\'s finest nutrients.',
+                            buttons: [
+                                {
+                                    text: 'Shop Now',
+                                    class: 'btn btn-primary',
+                                    href: '#shop',
+                                    ariaLabel: 'Shop our honey products'
+                                },
+                                {
+                                    text: 'Learn More',
+                                    class: 'btn btn-secondary',
+                                    href: '#about',
+                                    ariaLabel: 'Learn more about Varni Wellness'
+                                }
+                            ]
+                        }
+                    ];
+                    initializeSliderWithData();
+                }
+            });
+        }
+        
+        function initializeSliderWithData() {
+            console.log('Initializing slider with data:', sliderData.length, 'slides');
+            
+            // Slider Template Generator
+            function generateSlideHTML(slide) {
+                const titleId = slide.id === 1 ? 'hero-heading' : `slide-${slide.id}-heading`;
+                const titleTag = slide.titleTag || 'h2';
+                
+                return `
+                    <div class="slide" role="group" aria-label="Slide ${slide.id} of ${sliderData.length}">
+                        <img src="${slide.image}" alt="${slide.imageAlt}" class="slide-image">
+                        <div class="slide-content">
+                            <${titleTag} id="${titleId}">${slide.title}</${titleTag}>
+                            <p>${slide.description}</p>
+                            <div class="hero-buttons">
+                                ${slide.buttons.map(btn => 
+                                    `<a href="${btn.href}" class="${btn.class}" aria-label="${btn.ariaLabel}">${btn.text}</a>`
+                                ).join('')}
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
+            
+            // Generate Indicators HTML
+            function generateIndicatorsHTML() {
+                return sliderData.map((slide, index) => 
+                    `<button class="indicator ${index === 0 ? 'active' : ''}" role="tab" aria-selected="${index === 0 ? 'true' : 'false'}" aria-label="Go to slide ${index + 1}" data-slide="${index}"></button>`
+                ).join('');
+            }
+            
+            // Generate Status HTML
+            function generateStatusHTML() {
+                return `
+                    <span class="sr-only">Current slide: <span id="current-slide">1</span> of <span id="total-slides">${sliderData.length}</span></span>
+                `;
+            }
+            
+            // Initialize Slider with Dynamic Content
+            function initDynamicSlider() {
+                console.log('=== INITIALIZING DYNAMIC SLIDER ===');
+                
+                const $sliderContainer = $('.slider-container');
+                const $slider = $('#heroSlider');
+                
+                console.log('Slider container found:', $sliderContainer.length);
+                console.log('Slider element found:', $slider.length);
+                
+                if ($slider.length === 0) {
+                    console.error('Slider container not found!');
+                    return;
+                }
+                
+                // Clear existing content
+                $slider.empty();
+                console.log('Cleared existing slider content');
+                
+                // Generate slides
+                const slidesHTML = sliderData.map(slide => generateSlideHTML(slide)).join('');
+                console.log('Generated slides HTML:', slidesHTML.substring(0, 200) + '...');
+                $slider.html(slidesHTML);
+                
+                // Generate indicators
+                const $indicatorsContainer = $('.slider-indicators');
+                console.log('Indicators container found:', $indicatorsContainer.length);
+                if ($indicatorsContainer.length > 0) {
+                    const indicatorsHTML = generateIndicatorsHTML();
+                    console.log('Generated indicators HTML:', indicatorsHTML);
+                    $indicatorsContainer.html(indicatorsHTML);
+                }
+                
+                // Generate status
+                const $statusContainer = $('.slider-status');
+                console.log('Status container found:', $statusContainer.length);
+                if ($statusContainer.length > 0) {
+                    const statusHTML = generateStatusHTML();
+                    console.log('Generated status HTML:', statusHTML);
+                    $statusContainer.html(statusHTML);
+                }
+                
+                console.log('Dynamic slider generated with', sliderData.length, 'slides');
+                
+                // Set first slide as active
+                const $generatedSlides = $('.slide');
+                console.log('Generated slides found:', $generatedSlides.length);
+                if ($generatedSlides.length > 0) {
+                    $generatedSlides.eq(0).addClass('active');
+                    console.log('Set first slide as active');
+                }
+                
+                // Re-initialize slider functionality with longer delay
+                setTimeout(() => {
+                    console.log('=== INITIALIZING SLIDER FUNCTIONALITY ===');
+                    initSliderFunctionality();
+                }, 300);
+            }
+            
+            // Start the slider initialization
+            initDynamicSlider();
         }
         
-        // Generate Indicators HTML
-        function generateIndicatorsHTML() {
-            return sliderData.map((slide, index) => 
-                `<button class="indicator ${index === 0 ? 'active' : ''}" role="tab" aria-selected="${index === 0 ? 'true' : 'false'}" aria-label="Go to slide ${index + 1}" data-slide="${index}"></button>`
-            ).join('');
-        }
-        
-        // Generate Status HTML
-        function generateStatusHTML() {
-            return `
-                <span class="sr-only">Current slide: <span id="current-slide">1</span> of <span id="total-slides">${sliderData.length}</span></span>
-            `;
-        }
-        
-        // Initialize Slider with Dynamic Content
-        function initDynamicSlider() {
-            console.log('=== INITIALIZING DYNAMIC SLIDER ===');
-            
-            const $sliderContainer = $('.slider-container');
-            const $slider = $('#heroSlider');
-            
-            console.log('Slider container found:', $sliderContainer.length);
-            console.log('Slider element found:', $slider.length);
-            
-            if ($slider.length === 0) {
-                console.error('Slider container not found!');
-                return;
-            }
-            
-            // Clear existing content
-            $slider.empty();
-            console.log('Cleared existing slider content');
-            
-            // Generate slides
-            const slidesHTML = sliderData.map(slide => generateSlideHTML(slide)).join('');
-            console.log('Generated slides HTML:', slidesHTML.substring(0, 200) + '...');
-            $slider.html(slidesHTML);
-            
-            // Generate indicators
-            const $indicatorsContainer = $('.slider-indicators');
-            console.log('Indicators container found:', $indicatorsContainer.length);
-            if ($indicatorsContainer.length > 0) {
-                const indicatorsHTML = generateIndicatorsHTML();
-                console.log('Generated indicators HTML:', indicatorsHTML);
-                $indicatorsContainer.html(indicatorsHTML);
-            }
-            
-            // Generate status
-            const $statusContainer = $('.slider-status');
-            console.log('Status container found:', $statusContainer.length);
-            if ($statusContainer.length > 0) {
-                const statusHTML = generateStatusHTML();
-                console.log('Generated status HTML:', statusHTML);
-                $statusContainer.html(statusHTML);
-            }
-            
-            console.log('Dynamic slider generated with', sliderData.length, 'slides');
-            
-            // Set first slide as active
-            const $generatedSlides = $('.slide');
-            console.log('Generated slides found:', $generatedSlides.length);
-            if ($generatedSlides.length > 0) {
-                $generatedSlides.eq(0).addClass('active');
-                console.log('Set first slide as active');
-            }
-            
-            // Re-initialize slider functionality with longer delay
-            setTimeout(() => {
-                console.log('=== INITIALIZING SLIDER FUNCTIONALITY ===');
-                initSliderFunctionality();
-            }, 300);
-        }
+        // Load the slider data
+        loadSliderData();
         
         // Slider Functionality (separated from generation)
         function initSliderFunctionality() {
@@ -192,7 +181,7 @@ function initApp() {
             // DOM Elements (re-select after dynamic generation)
             const $slides = $('.slide');
             const $prevBtn = $('#prevSlide');
-            const $nextBtn = $('#nextBtn');
+            const $nextBtn = $('#nextSlide');
             const $indicators = $('.indicator');
             const $currentSlideSpan = $('#current-slide');
             const $totalSlidesSpan = $('#total-slides');
@@ -241,16 +230,31 @@ function initApp() {
             // Next button click
             console.log('=== SETTING NEXT BUTTON ===');
             if ($nextBtn.length > 0) {
+                console.log('Next button element found:', $nextBtn[0]);
+                console.log('Next button classes:', $nextBtn.attr('class'));
+                console.log('Next button ID:', $nextBtn.attr('id'));
+                
                 $nextBtn.off('click.slider').on('click.slider', function(e) {
                     e.preventDefault();
-                    console.log('🔜 Next button clicked');
+                    console.log('🔜 Next button clicked - event fired');
+                    console.log('Current slide before:', currentSlide);
                     stopAutoplay();
                     nextSlide();
                     startAutoplay();
+                    console.log('Current slide after:', currentSlide);
                 });
+                
+                // Also test with direct click
+                $nextBtn.on('click.test', function() {
+                    console.log('🔜 TEST: Next button click detected');
+                });
+                
                 console.log('✅ Next button event attached');
             } else {
                 console.warn('⚠️ Next button not found!');
+                console.log('Looking for #nextBtn...');
+                console.log('Found elements with "next":', $('[id*="next"]').length);
+                console.log('Found elements with class "next":', $('.next').length);
             }
             
             // Indicator clicks
@@ -371,15 +375,12 @@ function initApp() {
             console.log('🔧 Available API: window.sliderAPI');
         }
         
-        // Initialize dynamic slider
-        initDynamicSlider();
-        
         // Add manual test function
         window.testSlider = function() {
             console.log('=== MANUAL SLIDER TEST ===');
             console.log('Slides:', $('.slide').length);
             console.log('Prev button:', $('#prevSlide').length);
-            console.log('Next button:', $('#nextBtn').length);
+            console.log('Next button:', $('#nextSlide').length);
             console.log('Indicators:', $('.indicator').length);
             console.log('Active slide:', $('.slide.active').index());
             
@@ -387,10 +388,27 @@ function initApp() {
             if (window.sliderAPI) {
                 console.log('Slider API available');
                 console.log('Current slide:', window.sliderAPI.getCurrentSlide());
+                console.log('Testing next slide...');
                 window.sliderAPI.nextSlide();
                 console.log('After next slide:', window.sliderAPI.getCurrentSlide());
             } else {
                 console.error('Slider API not available!');
+            }
+        };
+        
+        // Test next button specifically
+        window.testNextButton = function() {
+            console.log('=== TESTING NEXT BUTTON ===');
+            const $nextBtn = $('#nextSlide');
+            console.log('Next button found:', $nextBtn.length);
+            
+            if ($nextBtn.length > 0) {
+                console.log('Simulating click on next button...');
+                $nextBtn.trigger('click');
+            } else {
+                console.error('Next button not found!');
+                console.log('All buttons with "next":', $('[class*="next"]').length);
+                console.log('All elements with ID containing "next":', $('[id*="next"]').length);
             }
         };
         

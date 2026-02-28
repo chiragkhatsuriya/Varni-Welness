@@ -1,0 +1,68 @@
+[
+    {
+        "id": 1,
+        "image": "assets/images/bg-1.png",
+        "imageAlt": "Pure Natural Honey",
+        "title": "Pure Honey from Nature's Bounty",
+        "titleTag": "h1",
+        "description": "Experience the golden goodness of Varni Wellness honey - 100% natural, pure, and packed with nature's finest nutrients.",
+        "buttons": [
+            {
+                "text": "Shop Now",
+                "class": "btn btn-primary",
+                "href": "#shop",
+                "ariaLabel": "Shop our honey products"
+            },
+            {
+                "text": "Learn More",
+                "class": "btn btn-secondary",
+                "href": "#about",
+                "ariaLabel": "Learn more about Varni Wellness"
+            }
+        ]
+    },
+    {
+        "id": 2,
+        "image": "assets/images/bg-1.png",
+        "imageAlt": "Premium Multi Flower Honey",
+        "title": "Premium Multi Flower Honey",
+        "titleTag": "h2",
+        "description": "Discover our exclusive collection of multi-floral honey, harvested from the finest blossoms for unparalleled taste and health benefits.",
+        "buttons": [
+            {
+                "text": "Explore Combos",
+                "class": "btn btn-primary",
+                "href": "#combos",
+                "ariaLabel": "View honey combos"
+            },
+            {
+                "text": "Shop All",
+                "class": "btn btn-secondary",
+                "href": "#shop",
+                "ariaLabel": "Shop all products"
+            }
+        ]
+    },
+    {
+        "id": 3,
+        "image": "assets/images/bg-1.png",
+        "imageAlt": "Ethical Sourcing",
+        "title": "Ethically Sourced Wellness",
+        "titleTag": "h2",
+        "description": "Support sustainable beekeeping practices and tribal communities while enjoying the purest honey nature has to offer.",
+        "buttons": [
+            {
+                "text": "Our Story",
+                "class": "btn btn-primary",
+                "href": "#about",
+                "ariaLabel": "Learn about our story"
+            },
+            {
+                "text": "Contact Us",
+                "class": "btn btn-secondary",
+                "href": "#contact",
+                "ariaLabel": "Get in touch"
+            }
+        ]
+    }
+]
